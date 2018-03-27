@@ -20,7 +20,11 @@ csv_writer = csv.writer(csv_file, delimiter=',')
 
 
 def format_tweets(to_convert):
-    # print(to_convert)
+    # Possible issues:
+    # 1. line breaks also exist in tweets, and break up a twitter message into several rows in the csv file.
+    # 2. the delimiter is comma, however comma is very common in tweets.
+    #    It is difficult to delimit a row from csv file.
+    # 3. quotation marks for some tweets
     converted = ''
     for char in to_convert:
         if char in UNICODE_EMOJI:
