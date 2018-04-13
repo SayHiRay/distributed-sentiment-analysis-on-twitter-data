@@ -1,7 +1,8 @@
 #Import the necessary methods from tweepy library
 from tweepy.streaming import StreamListener, Stream
 from tweepy import OAuthHandler, API, Cursor
-import csv
+from pandas.io.json import json_normalize
+import unicodecsv as csv
 import sys
 import json
 import re
@@ -12,12 +13,14 @@ access_token = "2370447853-BEfnpcunVUNzzlgEQtpnccRHpA2dF6RB3Ip5N8i"
 access_token_secret = "XNtTrpck1GOUbE70zMHyxGeJSpMg8BZq1q0Tod81vOqgA"
 consumer_key = "AGKhz4GBPGq7CWUhBrukSs0fa"
 consumer_secret = "40gCMJ36UcUsTtkZ1UZqSrzQEropyXOMVJe1iA1SOA3LKtjITs"
-
+print("Hello")
 # Open/Create a file to append data
-csv_file = open('twitter_data.csv', 'a', newline='')
+csv_file = open('twitter_data_final.csv', 'ab')
+# test_file = open('twitter_data_test.txt', 'a', newline='\n')
 # Use csv Writer
-csv_writer = csv.writer(csv_file, delimiter=',')
-
+print("Test1")
+csv_writer = csv.writer(csv_file, encoding='utf-8')
+print("Test2")
 
 def format_tweets(to_convert):
     # Possible issues:
@@ -34,6 +37,7 @@ def format_tweets(to_convert):
     converted = re.sub(r'&amp;', '&', converted)
     converted = re.sub(r'https?:\/\/[^\s]+', 'URL', converted)
     converted = re.sub(r'@[\w]+', 'USER_NAME', converted)
+    converted = re.sub(r'â€™', '\'', converted)
     return converted
 
 
@@ -42,30 +46,117 @@ class MyStreamListener(StreamListener):
 
     def on_data(self, data):
         d = json.loads(data)
-        # print (d)
-        info = []
         try:
+            created_at = d["created_at"]
+            id_str = d["id_str"]
+            try:
+                text = format_tweets(d["extended_tweet"]["full_text"])
+            except:
+                text = format_tweets(d["text"])
+                #text = format_tweets(d["text"])
+            place_fullname = d["place"]["full_name"]
+        except:
+            return
+        try:
+            user_id = d["user"]["id"]
+            user_name = d["user"]["name"]
+            user_location = d["user"]["location"]
+            user_url = d["user"]["url"]
+            user_description = d["user"]["description"]
+        except:
+            user_id = None
+            user_name = None
+            user_location = None
+            user_url = None
+            user_description = None
+        try:
+            place_id = d["place"]["id"]
+        except:
+            place_id = None
+        try:
+            place_url = d["place"]["url"]
+        except:
+            place_url = None
+        try:
+            place_type = d["place"]["place_type"]
+        except:
+            place_type = None
+        try:
+            place_countrycode = d["place"]["country_code"]
+        except:
+            place_countrycode = None
+        try:
+            place_country = d["place"]["country"]
+        except:
+            place_country = None
+        try:
+            place_boundingboxtype = d["place"]["bounding_box"]["type"]
+        except:
+            place_boundingboxtype = None
+        try:
+            entities_hashtags = d["entities"]["hashtags"]
+        except:
+            entities_hashtags = None
+        try:
+            entities_urls = d["entities"]["urls"]
+        except:
+            entities_urls = None
+        try:
+            entities_mentions = d["entities"]["user_mentions"]
+        except:
+            entities_mentions = None
+        try:
+            entities_symbols = d["entities"]["symbols"]
+        except:
+            entities_symbols = None
+        try:
+            entities_media = d["entities"]["media"]
+        except:
+            entities_media = None
+        try:
+            entities_polls = d["entities"]["polls"]
+        except:
+            entities_polls = None
 
-            date = d['created_at']
-            if date == '':
-                return True
-        except:
-            return True
-        try:
-            text = format_tweets(d['extended_tweet']['full_text'])
-        except:
-            text = format_tweets(d['text'])
-        # print(text)
-        user_id = d['user']['id_str']
-        location = d['place']['full_name']
-        info.append(date)
-        info.append(text)
-        info.append(user_id)
-        info.append(location)
-        try:
-            csv_writer.writerow(info)
-        except:
-            return True
+        data_line = []
+        data_line.extend((str(created_at),str(id_str),str(text),str(place_fullname),str(user_id),str(user_name),str(user_location),str(user_url),str(user_description),\
+                   str(place_id),str(place_url),str(place_type),str(place_countrycode),str(place_country),str(place_boundingboxtype),str(entities_hashtags),\
+                   str(entities_urls),str(entities_mentions),str(entities_symbols),str(entities_media),str(entities_polls)))
+        csv_writer.writerow(data_line)
+        # print (d)
+        # info = []
+        # try:
+        #     date = d['created_at']
+        #     if date == '':
+        #         return True
+        # except:
+        #     return True
+        # try:
+        #     text = format_tweets(d['extended_tweet']['full_text'])
+        # except:
+        #     text = format_tweets(d['text'])
+        # # print(text)
+        # user_id = d['user']['id_str']
+        # if d['place'] is None:
+        #     if d['coordinates'] is not None:
+        #         if d['coordinates']['coordinates'] is not None:
+        #             print("BOOYAH BITCHES")
+        #             return;
+        # if d['coordinates'] is None:
+        #     if d['place'] is not None:
+        #         print("DAMN SON")
+        #         return;
+        #
+        # print("made it")
+        # location = d['place']['full_name']
+        # info.append(date)
+        # info.append(text)
+        # info.append(user_id)
+        # info.append(location)
+        # try:
+        #     csv_writer.writerow(info)
+        # except:
+        #     return True
 
     def on_error(self, status_code):
         print(sys.stderr, 'Encountered error with status code:', status_code)
