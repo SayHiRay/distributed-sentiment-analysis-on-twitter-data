@@ -43,6 +43,9 @@ def format_tweets(to_convert):
 
 #This is a basic listener that just prints received tweets to stdout.
 class MyStreamListener(StreamListener):
+    def __init__(self, api=None):
+        super().__init__(api)
+        self.global_counter = 0
 
     def on_data(self, data):
         d = json.loads(data)
@@ -123,6 +126,12 @@ class MyStreamListener(StreamListener):
                    str(place_id),str(place_url),str(place_type),str(place_countrycode),str(place_country),str(place_boundingboxtype),str(entities_hashtags),\
                    str(entities_urls),str(entities_mentions),str(entities_symbols),str(entities_media),str(entities_polls)))
         csv_writer.writerow(data_line)
+        self.global_counter += 1
+
+        if self.global_counter % 1000 == 0:
+            print("{} tweets collected".format(self.global_counter))
+        if self.global_counter % 200000 == 0:
+            exit(0)
         # print (d)
         # info = []
         # try:
