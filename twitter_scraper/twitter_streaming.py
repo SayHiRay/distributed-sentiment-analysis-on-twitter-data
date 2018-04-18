@@ -127,7 +127,7 @@ class MyStreamListener(StreamListener):
                    str(entities_urls),str(entities_mentions),str(entities_symbols),str(entities_media),str(entities_polls)))
         csv_writer.writerow(data_line)
         self.global_counter += 1
-
+        print("Hello")
         if self.global_counter % 1000 == 0:
             print("{} tweets collected".format(self.global_counter))
         if self.global_counter % 200000 == 0:
@@ -182,7 +182,7 @@ if __name__ == '__main__':
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     stream = Stream(auth, l, tweet_mode='extended')
-    stream.filter(locations=[-161.75583, 19.50139, -68.01197, 64.85694])
+    stream.filter(languages=["en"],locations=[-161.75583, 19.50139, -68.01197, 64.85694])
 
 #
 # if __name__ == '__main__':
