@@ -7,9 +7,6 @@ import sys
 import json
 import re
 from emoji import UNICODE_EMOJI
-from urllib3.exceptions import ProtocolError
-from http.client import IncompleteRead
-
 
 #Variables that contains the user credentials to access Twitter API 
 access_token = "2370447853-BEfnpcunVUNzzlgEQtpnccRHpA2dF6RB3Ip5N8i"
@@ -130,10 +127,10 @@ class MyStreamListener(StreamListener):
                    str(entities_urls),str(entities_mentions),str(entities_symbols),str(entities_media),str(entities_polls)))
         csv_writer.writerow(data_line)
         self.global_counter += 1
-
+        print("Hello")
         if self.global_counter % 1000 == 0:
             print("{} tweets collected".format(self.global_counter))
-        if self.global_counter % 2000000 == 0:
+        if self.global_counter % 200000 == 0:
             exit(0)
         # print (d)
         # info = []
@@ -180,20 +177,12 @@ class MyStreamListener(StreamListener):
 
 
 if __name__ == '__main__':
-    while True:
-        try:
-            l = MyStreamListener()
-            auth = OAuthHandler(consumer_key, consumer_secret)
-            auth.set_access_token(access_token, access_token_secret)
-            stream = Stream(auth, l, tweet_mode='extended')
-            stream.filter(locations=[-161.75583, 19.50139, -68.01197, 64.85694])
-        except ProtocolError:
-            print("Connection error happened. Restarting.")
-            continue
-        except IncompleteRead:
-            print("Connection error happened. Restarting.")
-            continue
-        break
+    # This handles Twitter authentication and the connection to Twitter Streaming API
+    l = MyStreamListener()
+    auth = OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    stream = Stream(auth, l, tweet_mode='extended')
+    stream.filter(languages=["en"],locations=[-161.75583, 19.50139, -68.01197, 64.85694])
 
 #
 # if __name__ == '__main__':
