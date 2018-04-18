@@ -7,6 +7,10 @@ import sys
 import json
 import re
 from emoji import UNICODE_EMOJI
+from urllib3.exceptions import ProtocolError, ReadTimeoutError
+from http.client import IncompleteRead
+from socket import timeout
+
 
 #Variables that contains the user credentials to access Twitter API 
 access_token = "2370447853-BEfnpcunVUNzzlgEQtpnccRHpA2dF6RB3Ip5N8i"
@@ -18,9 +22,7 @@ print("Hello")
 csv_file = open('twitter_data_final.csv', 'ab')
 # test_file = open('twitter_data_test.txt', 'a', newline='\n')
 # Use csv Writer
-print("Test1")
 csv_writer = csv.writer(csv_file, encoding='utf-8')
-print("Test2")
 
 def format_tweets(to_convert):
     # Possible issues:
@@ -130,7 +132,7 @@ class MyStreamListener(StreamListener):
         print("Hello")
         if self.global_counter % 1000 == 0:
             print("{} tweets collected".format(self.global_counter))
-        if self.global_counter % 200000 == 0:
+        if self.global_counter % 2000000 == 0:
             exit(0)
         # print (d)
         # info = []
@@ -178,11 +180,27 @@ class MyStreamListener(StreamListener):
 
 if __name__ == '__main__':
     # This handles Twitter authentication and the connection to Twitter Streaming API
-    l = MyStreamListener()
-    auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-    stream = Stream(auth, l, tweet_mode='extended')
-    stream.filter(languages=["en"],locations=[-161.75583, 19.50139, -68.01197, 64.85694])
+    while True:
+        try:
+            l = MyStreamListener()
+            auth = OAuthHandler(consumer_key, consumer_secret)
+            auth.set_access_token(access_token, access_token_secret)
+            stream = Stream(auth, l, tweet_mode='extended')
+            stream.filter(languages=["en"],locations=[-161.75583, 19.50139, -68.01197, 64.85694])
+        except ProtocolError:
+            print("Connection error happened. Restarting.")
+            continue
+        except IncompleteRead:
+            print("Connection error happened. Restarting.")
+            continue
+        except ReadTimeoutError:
+            print("Connection error happened. Restarting.")
+            continue
+        except timeout:
+            print("Connection error happened. Restarting.")
+            continue
+        break
+
 
 #
 # if __name__ == '__main__':
