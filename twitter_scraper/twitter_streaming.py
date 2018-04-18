@@ -17,7 +17,6 @@ access_token = "2370447853-BEfnpcunVUNzzlgEQtpnccRHpA2dF6RB3Ip5N8i"
 access_token_secret = "XNtTrpck1GOUbE70zMHyxGeJSpMg8BZq1q0Tod81vOqgA"
 consumer_key = "AGKhz4GBPGq7CWUhBrukSs0fa"
 consumer_secret = "40gCMJ36UcUsTtkZ1UZqSrzQEropyXOMVJe1iA1SOA3LKtjITs"
-print("Hello")
 # Open/Create a file to append data
 csv_file = open('twitter_data_final.csv', 'ab')
 # test_file = open('twitter_data_test.txt', 'a', newline='\n')
@@ -129,7 +128,6 @@ class MyStreamListener(StreamListener):
                    str(entities_urls),str(entities_mentions),str(entities_symbols),str(entities_media),str(entities_polls)))
         csv_writer.writerow(data_line)
         self.global_counter += 1
-        print("Hello")
         if self.global_counter % 1000 == 0:
             print("{} tweets collected".format(self.global_counter))
         if self.global_counter % 2000000 == 0:
